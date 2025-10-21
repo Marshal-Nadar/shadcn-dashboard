@@ -30,10 +30,12 @@ import { useSidebar } from "@/contexts/sidebar-context";
 import { ThemeToggle } from "./theme-toggle";
 import { cn } from "@/lib/utils";
 import { SettingsDropdown } from "./settings-dropdown";
+import { useAuth } from "@/contexts/auth-context";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isSidebarOpen, toggleSidebar } = useSidebar();
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   return (
     <div className="flex min-h-screen w-full">
@@ -341,17 +343,33 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/avatars/01.png" alt="@user" />
-                    <AvatarFallback>US</AvatarFallback>
+                    <AvatarFallback>
+                      {user?.name
+                        ? user.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                        : "US"}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {user?.name}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user?.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem>Profile</DropdownMenuItem>
                 <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem>Support</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Logout</DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
