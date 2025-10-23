@@ -3,9 +3,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoginForm } from "@/components/auth/login-form";
 import { SignupForm } from "@/components/auth/signup-form";
 import { Package2 } from "lucide-react";
+import { Toaster } from "@/components/ui/sonner";
 
 export function AuthPage() {
   const [activeTab, setActiveTab] = useState("login");
+
+  const handleSwitchToLogin = () => {
+    setActiveTab("login");
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
@@ -31,10 +36,13 @@ export function AuthPage() {
             <LoginForm />
           </TabsContent>
           <TabsContent value="signup">
-            <SignupForm />
+            <SignupForm onSwitchToLogin={handleSwitchToLogin} />
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Sonner Toaster */}
+      <Toaster position="bottom-left" />
     </div>
   );
 }

@@ -9,23 +9,65 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useAuth } from "@/contexts/auth-context";
-import { useNavigate } from "react-router-dom";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { UserPlus } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { registerUser, clearError } from "@/store/slices/authSlice";
+import { toast } from "sonner";
 
-export function SignupForm() {
+interface SignupFormProps {
+  onSwitchToLogin: () => void;
+}
+
+export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useAuth();
-  const navigate = useNavigate();
+  const [role, setRole] = useState("branch_manager");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const dispatch = useAppDispatch();
+  const { loading, error } = useAppSelector((state) => state.auth);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Signup attempted with:", name, email, password); // Debug log
-    // For demo, we'll just log them in directly
-    login(email, password);
-    navigate("/dashboard"); // Navigate to dashboard after signup
+    dispatch(clearError());
+
+    const userData = {
+      name,
+      email,
+      password,
+      role,
+      restaurant_id: 1,
+    };
+
+    try {
+      await dispatch(registerUser(userData)).unwrap();
+
+      // Show success toast
+      toast.success("User created successfully!", {
+        description: "You can now login with your credentials.",
+      });
+
+      // Clear form
+      setName("");
+      setEmail("");
+      setPassword("");
+      setRole("branch_manager");
+
+      // Switch to login tab after a brief delay
+      setTimeout(() => {
+        onSwitchToLogin();
+      }, 1500);
+    } catch (error) {
+      // Error is already handled by Redux, no need to show toast here
+      console.error("Registration failed:", error);
+    }
   };
 
   return (
@@ -41,6 +83,12 @@ export function SignupForm() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">
+              {error}
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
             <Input
@@ -51,8 +99,10 @@ export function SignupForm() {
               onChange={(e) => setName(e.target.value)}
               autoComplete="name"
               required
+              disabled={loading}
             />
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="signup-email">Email</Label>
             <Input
@@ -63,8 +113,10 @@ export function SignupForm() {
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
               required
+              disabled={loading}
             />
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="signup-password">Password</Label>
             <Input
@@ -75,15 +127,36 @@ export function SignupForm() {
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
               required
+              disabled={loading}
             />
           </div>
-          <Button type="submit" className="w-full">
-            Create Account
+
+          <div className="space-y-2">
+            <Label htmlFor="role">Role</Label>
+            <Select value={role} onValueChange={setRole} disabled={loading}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="store_manager">Store Manager</SelectItem>
+                <SelectItem value="branch_manager">Branch Manager</SelectItem>
+                <SelectItem value="kitchen_staff">Kitchen Staff</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? (
+              <>
+                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
+                Creating Account...
+              </>
+            ) : (
+              "Create Account"
+            )}
           </Button>
         </form>
-        <div className="mt-4 text-center text-sm text-muted-foreground">
-          Demo: Any information will work for signup
-        </div>
       </CardContent>
     </Card>
   );

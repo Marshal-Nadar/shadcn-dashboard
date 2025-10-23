@@ -1,4 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { logout } from "@/store/slices/authSlice";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -35,7 +37,13 @@ import { useAuth } from "@/contexts/auth-context";
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isSidebarOpen, toggleSidebar } = useSidebar();
   const location = useLocation();
-  const { user, logout } = useAuth();
+  // const { user, logout } = useAuth();
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
 
   return (
     <div className="flex min-h-screen w-full">
@@ -369,7 +377,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <DropdownMenuItem>Profile</DropdownMenuItem>
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  Logout
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

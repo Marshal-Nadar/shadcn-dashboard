@@ -13,6 +13,7 @@ import { AnalyticsPage } from "./pages/analytics-page";
 import { AuthPage } from "./pages/auth-page";
 import { ProtectedRoute } from "./components/protected-route";
 import { useAuth } from "@/contexts/auth-context";
+import { ExpenseTypesPage } from "./pages/expense-types-page";
 
 // Create a component to handle the root redirect
 function RootRedirect() {
@@ -51,6 +52,16 @@ export function AppRouter() {
             <ProtectedRoute>
               <DashboardLayout>
                 <OrdersPage />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/test"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <ExpenseTypesPage />
               </DashboardLayout>
             </ProtectedRoute>
           }

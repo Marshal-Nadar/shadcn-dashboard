@@ -1,12 +1,25 @@
-import { useAuth } from "@/contexts/auth-context";
+import { useEffect } from "react";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { verifyToken } from "@/store/slices/authSlice";
 import { Navigate } from "react-router-dom";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
-  console.log("ProtectedRoute - isAuthenticated:", isAuthenticated); // Debug log
+  const { isAuthenticated, token, loading } = useAppSelector(
+    (state) => state.auth
+  );
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (token && !isAuthenticated) {
+      dispatch(verifyToken(token));
+    }
+  }, [token, isAuthenticated, dispatch]);
+
+  if (loading) {
+    return <div>Loading...</div>; // You can replace with a proper loader
+  }
 
   if (!isAuthenticated) {
-    console.log("Redirecting to /auth"); // Debug log
     return <Navigate to="/auth" replace />;
   }
 
